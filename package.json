@@ -1,0 +1,13 @@
+{ "name" : "semantic-links",
+  "version" : "1.0.0",
+  "dependencies" : { 
+	"ejs" : "", 
+	"mongodb" : "", 
+	"cron" : "", 
+	"winston" : "",
+	"threads-a-gogo" : "",
+	"backgrounder" : "",
+	"mongodb" : "",
+	"socket.io":"" 
+  } 
+}

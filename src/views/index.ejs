@@ -1,0 +1,150 @@
+<html>
+	<head>
+		<title>Semantic Links</title>		
+		<script type="text/javascript" src="/resources/js/jquery.validationEngine.js"></script>
+		<script type="text/javascript" src="/resources/js/jquery.validationEngine-en.js"></script>		
+		<script type="text/javascript" src="/resources/js/jquery.autocomplete.min.js"></script>		
+		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+		
+		<link rel="stylesheet" href="/resources/css/validationEngine.jquery.css" type="text/css"></link>
+		<style type="text/css">
+			.autocomplete-suggestions { border: 1px solid #999; background: #FFF; overflow: auto; }
+			.autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+			.autocomplete-selected { background: #F0F0F0; }
+			.autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
+		</style>
+		<script type="text/javascript">
+			function getFullPath(suffix){
+				return window.location.protocol + "//" + window.location.host + '/' + suffix;
+			}
+			
+			function calculateLinkSecFont(fullPath){
+				var fontSize = 12;
+			    if(fullPath.length > 40){
+			      fontSize = (window.innerHeight * window.innerWidth) / (2000 * fullPath.length * 0.80);
+			    }
+			    return fontSize;
+			}						
+			
+			$(document).ready(function(){				
+			   var linkLineHeight = window.innerHeight * window.innerWidth * 0.0000025;
+			   
+			   function formatTrendingSection(){
+					$('.sideLinksTop').css({'line-height': 1.5});
+					$('.hrefTrending').each(function(index, elem){
+						var fullPath=getFullPath($(elem).text());
+						$(elem).attr({href: fullPath}).text(fullPath).css('font-size',calculateLinkSecFont(fullPath));
+					});
+			   }
+			   
+			   formatTrendingSection();
+			   
+			   $("#divForValidation").validationEngine();
+			   $("#txtAreaTags").autocomplete({
+					serviceUrl: '/suggestTags',
+					delimiter: ","					
+				});
+				var socket = io.connect();							  
+				socket.on('link', function(data){
+				    var fullPath=getFullPath(data.newLink);
+				    if($("#rightSecBottom").children().length >= 5){
+				    	$("#rightSecBottom .sideLinksBottom").filter(":last").fadeOut(500, function() { $(this).remove(); });
+				    }				    				    
+					$('<div class="sideLinksBottom" style="display: none;"></div>').append(
+						$("<a></a>").attr({href: fullPath}).text(fullPath).css('font-size',calculateLinkSecFont(fullPath))
+					).prependTo("#rightSecBottom").slideDown(1000).css({'line-height': linkLineHeight});
+					
+				});
+			});
+			function alternateLink(){
+				if($("#divForValidation").validationEngine('validate')){
+					doAjaxPost();
+				}				
+			}
+			
+			function doAjaxPost(){
+				var linkTags =  $('#txtAreaTags').val();
+				var realLink = $('#txtRealLink').val();
+				$('#btnNewLink').text('Generating Something Better..');
+				$.post("/generate", { tags: linkTags, link : realLink }, function(data){
+					$('#btnNewLink').toggle();
+					var fullPath=window.location.protocol + "//" + window.location.host + '/' + data;
+					$('#hrefBetter').text(fullPath).attr({href: fullPath});					
+					$('#hrefBetterLinkDiv').toggle();
+				}).error(function() { 
+					$('#btnNewLink').text('Some error occured. Please try later.')
+				});
+			}
+			
+			function resetForm(){
+				$('#hrefBetterLinkDiv').toggle();
+				$('#btnNewLink').toggle();
+				$('#hrefBetter').text('').attr({href: '#'});
+				$('#txtAreaTags').val('');
+				$('#txtRealLink').val('');
+			}
+			
+			<% function generateTrendingLink(link) { %>
+	    		<div class="sideLinksTop">
+	    			<a class="hrefTrending" href=<%=link.betterLink %>><%=link.betterLink %></a>
+	    			<span class="countTrendingDiv">
+	    				<%=link.hitCount %>
+	    			</span>
+	    		</div>
+			<% } %>
+		</script>
+		<style>
+			.countTrendingDiv{
+				-webkit-box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
+				-moz-box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
+				box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
+				color:#333;
+				background-color:#FA2;
+				border-radius:5px;
+				-moz-border-radius:5px;
+				-webkit-border-radius:5px;
+				border:none;
+				font-family:'Helvetica Neue',Arial,sans-serif;
+				font-size:12px;
+				font-weight:700;
+				height:1%;
+				padding:4px 16px;
+				text-shadow:#FE6 0 1px 0
+			}
+		</style>
+	</head>
+	<body>				
+		<div id="leftSec">
+		  <div id="mainLeftSec">
+		   <div id="divForValidation" class="validationEngineContainer">
+			 <div class="mainLabel">Tags </div><div class="subLabel">(Separated by comma)</div>
+			 <textarea rows="4" cols="50" class="mainTxtArea" name="q" autocomplete="off" id="txtAreaTags"></textarea>			
+			
+			 <div class="mainLabel spacerTop">The Real Link</div>
+			 <input type="text" class="mainTxt inputTransition validate[required,custom[url]]" id="txtRealLink" onfocus="$(this).validationEngine('hide');"/>
+			 <div class="spacerTop" id="mainBtnDiv">
+			 	<button class="mainBtn" onclick="alternateLink();" id="btnNewLink">Give me the Better Link!</button>
+			 	<div class="spacerTop" id="hrefBetterLinkDiv" style="display:none;">
+			 		<a href="#" class="mainBtn" id="hrefBetter"></a>
+			 		<button class="mainBtnAlt1" onclick="resetForm();" id="btnOneMore">One More!!</button>
+			 	</div>			 	
+			 </div>
+		   </div>
+		  </div>
+		</div>
+		
+		<div id="rightSec">
+			<div id="rightSecTopHeader" class="mainLabel" style="text-align: center;">
+				Trending
+			</div>
+		    <div id="rightSecTop" style="height: 50%">		    	
+		    	<% if(trending.length>0)trending.map(generateTrendingLink)%>
+		    </div>
+			<div id="rightSecBottomHeader" class="mainLabel" style="text-align: center;">
+				Real Time
+			</div>		    
+		    <div id="rightSecBottom">
+		    </div>
+		</div>
+	</body>
+</html>
