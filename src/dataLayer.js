@@ -159,7 +159,7 @@ function _top5Trending(callback){
 
 function _topTags(callback){
 	db.collection('tagCollection', function(err, collection) {
-		collection.find({},{'sort':[['value','desc']], 'limit': 50}, function(err, data){
+		collection.find({},{'sort':[['value','desc']], 'limit': 40}, function(err, data){
 			if(err){
 				common.winston.error("Failed retreiving top tags on MongoDB with error- " + err);
 				callback(undefined, err);
