@@ -31,7 +31,8 @@ function generate(request, response){
 }
 
 function doRedirect(request, response){
-	dl.redirectToRealLink(response, request.pathName);
+	var agent = common.useragent.lookup(request.headers['user-agent']);
+	dl.redirectToRealLink(response, request.pathName, agent);	
 }
 
 function suggestTags(request, response){

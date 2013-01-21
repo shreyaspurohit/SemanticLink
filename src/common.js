@@ -6,6 +6,7 @@ Common = {
   ejs: require('ejs'),
   url: require('url'),
   qs: require('querystring'),
+  useragent: require('useragent'),
   constants: require('./constants')
 };
 module.exports=Common;

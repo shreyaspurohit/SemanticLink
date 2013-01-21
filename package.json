@@ -1,13 +1,14 @@
-{ "name" : "semantic-links",
-  "version" : "1.0.0",
-  "dependencies" : { 
-	"ejs" : "", 
-	"mongodb" : "", 
-	"cron" : "", 
-	"winston" : "",
-	"threads-a-gogo" : "",
-	"backgrounder" : "",
-	"mongodb" : "",
-	"socket.io":"" 
-  } 
+{
+  "name": "semantic-links",
+  "version": "1.0.0",
+  "dependencies": {
+    "ejs": "",
+    "mongodb": "",
+    "cron": "",
+    "winston": "",
+    "threads-a-gogo": "",
+    "backgrounder": "",
+    "socket.io": "",
+    "useragent": "~2.0.0"
+  }
 }

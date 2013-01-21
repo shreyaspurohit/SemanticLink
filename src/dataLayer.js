@@ -89,7 +89,7 @@ function _saveNewLink(realLink, tags, betterLink){
 	});
 }
 
-function _redirectToRealLink(response, inBetterLink){
+function _redirectToRealLink(response, inBetterLink, agent){
 	db.collection('LinkData', function(err, collection) {
 		var findDoc={ 'betterLink': inBetterLink.slice(1)};
 		common.winston.debug("Finding document: " + common.util.inspect(findDoc, true, null));
@@ -103,6 +103,35 @@ function _redirectToRealLink(response, inBetterLink){
 					functions.send404(response, inBetterLink);
 				}
 			}			
+		});
+	});
+	
+	updateAccessUserAgent(inBetterLink, agent);//Can return _id previously and use it instead of another query later, but may lose when document does exist, so good idea?
+}
+
+function updateAccessUserAgent(inBetterLink, agent){
+	db.collection('LinkData', function(err, collection) {
+		var findDoc={ 'betterLink': inBetterLink.slice(1)};
+		collection.find(findDoc, {'fields': {'_id':1}}, function(err, items){
+			if(!err){
+				items.nextObject(function(err, item){
+					if(!err && item !== null){						
+						var familyMajor=agent.family+'_v'+agent.major;
+						db.collection('UserAgent', function(err, uacollection) {
+							var ua = {};
+							ua[agent.family] = 1;
+							ua[agent.os.family] = 1;
+							ua[familyMajor] = 1;
+							uacollection.findAndModify({'_id':item._id}, {}, {$inc : ua}, {'upsert':true}, function(err, item){
+								if(err){
+									common.winston.error("Failed updating UserAgent for accessing " + inBetterLink + " on MongoDB with error- " + err);
+								}
+							});
+						});
+					}
+				});
+
+			}
 		});
 	});
 }

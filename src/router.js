@@ -4,7 +4,7 @@ var resources = require("./resources");
 var functions = require("./functions");
 
 function route(request, response, handlers) {
-  common.winston.info("Routing:" + request.pathName);
+  common.winston.debug("Routing:" + request.pathName);  
   var resourcePath=common.constants.resourcePathPattern + "/";
   if(request.pathName.search(resourcePath) === 0){
     resources.respondResource(request.pathName, response);
