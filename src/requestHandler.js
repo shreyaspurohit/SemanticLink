@@ -41,6 +41,31 @@ function suggestTags(request, response){
 	});
 }
 
+function tagCloud(request, response){
+	function fisherYates ( arrayData ) {
+	  var i = arrayData.length, j, tempi, tempj;
+	  if ( i === 0 ) return false;
+	  while ( --i ) {
+	     j = Math.floor( Math.random() * ( i + 1 ) );
+	     tempi = arrayData[i];
+	     tempj = arrayData[j];
+	     arrayData[i] = tempj;
+	     arrayData[j] = tempi;
+	   }
+	}
+	
+	var resHandler=function(data, err){
+		response.writeHead(200, common.constants.textContent);
+		if(data && data.length > 0){
+			var tagDataJson=data.map(function(item){return {'tagName':item._id, 'tagStrength':item.value};});			
+			fisherYates(tagDataJson);
+			response.write(JSON.stringify(tagDataJson));
+		}
+		response.end();
+	};
+	dl.topTags(resHandler);
+}
+
 function initDBJobs(){
 	dl.initDBJobs();
 }
@@ -50,31 +75,6 @@ exports._index=start;
 exports._start = start;
 exports._generate=generate;
 exports._suggestTags=suggestTags;
+exports._tagCloud=tagCloud;
 exports.doRedirect=doRedirect;
 exports.initDBJobs=initDBJobs;
-
-/*
-var exec = require("child_process").exec;
-
-function start(response) {
-  console.log("Request handler 'start' was called.");
-
-  exec("find /",
-    { timeout: 10000, maxBuffer: 20000*1024 },
-    function (error, stdout, stderr) {
-      response.writeHead(200, {"Content-Type": "text/plain"});
-      response.write(stdout);
-      response.end();
-    });
-}
-
-function upload(response) {
-  console.log("Request handler 'upload' was called.");
-  response.writeHead(200, {"Content-Type": "text/plain"});
-  response.write("Hello Upload");
-  response.end();
-}
-
-exports.start = start;
-exports.upload = upload;
-*/

@@ -134,7 +134,7 @@ body{
 }
 
 .sideLinksBottom A:link, .sideLinksTop A:link {text-decoration: none; color: black; position:relative; top:25%;}
-.sideLinksBottom A:visited, .sideLinksTop A:visited {text-decoration: none}
+.sideLinksBottom A:visited, .sideLinksTop A:visited {text-decoration: none; color: black;}
 .sideLinksBottom A:active, .sideLinksTop A:active {text-decoration: none}
 .sideLinksBottom A:hover, .sideLinksTop A:hover {font-size:110%; font-weight:bold; color: #2CA60A;}
 
@@ -170,4 +170,62 @@ body{
 	color:rgba(0,0,0,0.4);
 	text-shadow:1px 1px 0px rgba(255,255,255,0.5);
 	background:rgba(220,220,220,1);
+}
+.countTrendingDiv{
+	-webkit-box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
+	-moz-box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
+	box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
+	color:#333;
+	background-color:#FA2;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border:none;
+	font-family:'Helvetica Neue',Arial,sans-serif;
+	font-size:12px;
+	font-weight:700;
+	height:1%;
+	padding:4px 16px;
+	text-shadow:#FE6 0 1px 0
+}
+#visual{
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 100%;				
+}
+
+#tagCloudUl{
+	margin:1em 0;
+	padding:.5em .5em .5em .5em;
+	text-align:center;	
+	background: #ffd65e; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffd65e 0%, #febf04 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffd65e), color-stop(100%,#febf04)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffd65e 0%,#febf04 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffd65e 0%,#febf04 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #ffd65e 0%,#febf04 100%); /* IE10+ */
+	background: linear-gradient(to bottom, #ffd65e 0%,#febf04 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=0 ); /* IE6-9 */			
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px;				
+	border-radius: 5px;				
+}
+#tagCloudUl li{
+	margin:0;
+	padding:0;
+	list-style:none;
+	display:inline;				
+}			
+#tagCloudUl li a:hover{
+	font-weight:bold;
+	color: green;
+}
+#tagCloudUl li a:link{
+	text-decoration:none;				
+	padding:0 2px;
+	color:black;
+}
+#tagCloudUl li a:visited{
+	color:black;
 }

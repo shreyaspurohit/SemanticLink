@@ -157,8 +157,26 @@ function _top5Trending(callback){
 	});
 }
 
+function _topTags(callback){
+	db.collection('tagCollection', function(err, collection) {
+		collection.find({},{'sort':[['value','desc']], 'limit': 50}, function(err, data){
+			if(err){
+				common.winston.error("Failed retreiving top tags on MongoDB with error- " + err);
+				callback(undefined, err);
+			}
+			data.toArray(function(err, items){
+				if(err){
+					common.winston.error("Failed retreiving top tags on MongoDB while converting cursor to array with error- " + err);
+				}
+				callback(items, err);
+			});			
+		});
+	});
+}
+
 exports.saveNewLink=_saveNewLink;
 exports.redirectToRealLink=_redirectToRealLink;
 exports.suggestTags=_suggestTags;
 exports.initDBJobs=initDBJobs;
 exports.top5Trending=_top5Trending;
+exports.topTags=_topTags;

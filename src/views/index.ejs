@@ -5,6 +5,7 @@
 		<script type="text/javascript" src="/resources/js/jquery.validationEngine-en.js"></script>		
 		<script type="text/javascript" src="/resources/js/jquery.autocomplete.min.js"></script>		
 		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript" src="/resources/js/jquery.tagCloudGenerator.js"></script>
 		
 		<link rel="stylesheet" href="/resources/css/validationEngine.jquery.css" type="text/css"></link>
 		<style type="text/css">
@@ -13,7 +14,7 @@
 			.autocomplete-selected { background: #F0F0F0; }
 			.autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
 		</style>
-		<script type="text/javascript">
+		<script type="text/javascript">			
 			function getFullPath(suffix){
 				return window.location.protocol + "//" + window.location.host + '/' + suffix;
 			}
@@ -27,8 +28,7 @@
 			}						
 			
 			$(document).ready(function(){				
-			   var linkLineHeight = window.innerHeight * window.innerWidth * 0.0000025;
-			   
+			   var linkLineHeight = window.innerHeight * window.innerWidth * 0.0000025;			   
 			   function formatTrendingSection(){
 					$('.sideLinksTop').css({'line-height': 1.5});
 					$('.hrefTrending').each(function(index, elem){
@@ -36,7 +36,7 @@
 						$(elem).attr({href: fullPath}).text(fullPath).css('font-size',calculateLinkSecFont(fullPath));
 					});
 			   }
-			   
+			   doTagCloudPost();
 			   formatTrendingSection();
 			   
 			   $("#divForValidation").validationEngine();
@@ -60,6 +60,14 @@
 				if($("#divForValidation").validationEngine('validate')){
 					doAjaxPost();
 				}				
+			}
+			
+			function doTagCloudPost(){
+				$.post("/tagCloud", function(data){
+					$('#tagCloudDiv').generateTagCloud(data, {baseFontSizePerc: 60});
+				}).error(function() { 
+					alert('Error getting tags cloud');
+				});
 			}
 			
 			function doAjaxPost(){
@@ -94,26 +102,10 @@
 			<% } %>
 		</script>
 		<style>
-			.countTrendingDiv{
-				-webkit-box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
-				-moz-box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
-				box-shadow:rgba(0,0,0,0.2) 0 1px 0 0;
-				color:#333;
-				background-color:#FA2;
-				border-radius:5px;
-				-moz-border-radius:5px;
-				-webkit-border-radius:5px;
-				border:none;
-				font-family:'Helvetica Neue',Arial,sans-serif;
-				font-size:12px;
-				font-weight:700;
-				height:1%;
-				padding:4px 16px;
-				text-shadow:#FE6 0 1px 0
-			}
+						
 		</style>
 	</head>
-	<body>				
+	<body>							
 		<div id="leftSec">
 		  <div id="mainLeftSec">
 		   <div id="divForValidation" class="validationEngineContainer">
@@ -130,6 +122,11 @@
 			 	</div>			 	
 			 </div>
 		   </div>
+		  </div>
+		  <div id="visual">
+			  <div id="tagCloudDiv">
+				  
+			  </div>
 		  </div>
 		</div>
 		
