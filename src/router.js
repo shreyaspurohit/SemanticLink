@@ -13,7 +13,7 @@ function route(request, response, handlers) {
   }
   else{
      var hf = request.pathName.replace(/\//gi, "_");
-	  if(handlers[hf] != undefined){
+	  if(handlers[hf] !== undefined){
 	  	handlers[hf](request, response);
 	  }else{
 	  	handlers['doRedirect'](request, response);

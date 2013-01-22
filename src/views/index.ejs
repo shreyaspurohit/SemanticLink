@@ -6,8 +6,15 @@
 		<script type="text/javascript" src="/resources/js/jquery.autocomplete.min.js"></script>		
 		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 		<script type="text/javascript" src="/resources/js/jquery.tagCloudGenerator.js"></script>
+		<script language="javascript" type="text/javascript" src="/resources/js/jquery.jqplot.min.js"></script>
+		<script language="javascript" type="text/javascript" src="/resources/js/jqplot.categoryAxisRenderer.min.js"></script>
+		<script language="javascript" type="text/javascript" src="/resources/js/jqplot.barRenderer.min.js"></script>
+		<script language="javascript" type="text/javascript" src="/resources/js/jqplot.pieRenderer.min.js"></script>
+		<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="/resources/js/excanvas.js"></script><![endif]-->
 		
 		<link rel="stylesheet" href="/resources/css/validationEngine.jquery.css" type="text/css"></link>
+		<link rel="stylesheet" type="text/css" href="/resources/css/jquery.jqplot.css" />
+		
 		<style type="text/css">
 			.autocomplete-suggestions { border: 1px solid #999; background: #FFF; overflow: auto; }
 			.autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
@@ -55,6 +62,9 @@
 					).prependTo("#rightSecBottom").slideDown(1000).css({'line-height': linkLineHeight});
 					
 				});
+				
+				plotOsChart();
+				plotBrowserChart();
 			});
 			function alternateLink(){
 				if($("#divForValidation").validationEngine('validate')){
@@ -92,6 +102,72 @@
 				$('#txtRealLink').val('');
 			}
 			
+			function plotOsChart(){
+				$.post("/uaSummaryOS", function(data){
+					if(data){
+						$('#osChartDiv').show();
+						var plotData = $.parseJSON(data);
+						var maxVal = Math.max.apply(null, plotData['osCount'])
+						plotData['osCount'].forEach(function(element, index, array){
+							array[index] = element/maxVal * 100;
+						});
+						$.jqplot('osChartDiv',  [plotData['osCount']],{
+					        seriesDefaults:{
+					            renderer:$.jqplot.BarRenderer,
+					            rendererOptions: {varyBarColor: true, fillToZero: true}
+					        },				        
+					        legend: {
+					            show: false,
+					            placement: 'insideGrid'
+					        },
+					        axes: {
+					            xaxis: {
+					                renderer: $.jqplot.CategoryAxisRenderer,
+					                ticks: plotData['osArray']
+					            },
+					            yaxis: {
+					                pad: 1.05,
+					                tickOptions: {formatString: '%.1f \%'}
+					            }
+					        },
+					        title: {
+						        text: 'Operating System',
+						        show: true,
+						    },
+					        seriesColors: ["#DBA400", "#A4DB00", "#FFC61A", "#1A53FF", "#00A4DB", "#A400DB"]
+						});
+					}
+				}).error(function() { 
+					alert('Error getting os stats');
+				});
+								
+			}
+			
+			function plotBrowserChart(){
+				$.post("/uaSummaryBrowser", function(data){					
+					if(data){
+						$('#browserChartDiv').show();
+						var plotData = $.parseJSON(data);
+						$.jqplot('browserChartDiv',  [plotData], {
+							seriesDefaults: {				        
+						        renderer: jQuery.jqplot.PieRenderer,
+						        rendererOptions: {				          
+						          showDataLabels: true
+						        }					        
+					      	},
+					      	legend: { show:true, location: 'e' },
+					      	title: {
+						        text: 'Browsers',
+						        show: true,
+						    },
+					      	seriesColors: ["#DBA400", "#A4DB00", "#FFC61A", "#1A53FF", "#00A4DB", "#A400DB"]
+						});
+					}					
+				}).error(function() { 
+					alert('Error getting browser stats');
+				});
+			}
+			
 			<% function generateTrendingLink(link) { %>
 	    		<div class="sideLinksTop">
 	    			<a class="hrefTrending" href=<%=link.betterLink %>><%=link.betterLink %></a>
@@ -102,7 +178,21 @@
 			<% } %>
 		</script>
 		<style>
-						
+			#osChartDiv{
+				width: 50%;
+				height:35%;
+				position:absolute;
+				top: 65%;
+				left:0%;
+			}
+			
+			#browserChartDiv{
+				width: 50%;
+				height:35%;
+				position:absolute;
+				top: 65%;
+				left:50%;
+			}
 		</style>
 	</head>
 	<body>							
@@ -128,6 +218,8 @@
 				  
 			  </div>
 		  </div>
+		  <div id="osChartDiv" style="display:none;"></div>
+		  <div id="browserChartDiv" style="display:none;"></div>
 		</div>
 		
 		<div id="rightSec">

@@ -54,9 +54,8 @@ function tagCloud(request, response){
 	     arrayData[j] = tempi;
 	   }
 	}
-	
-	var resHandler=function(data, err){
-		response.writeHead(200, common.constants.textContent);
+	response.writeHead(200, common.constants.textContent);
+	var resHandler=function(data, err){		
 		if(data && data.length > 0){
 			var tagDataJson=data.map(function(item){return {'tagName':item._id, 'tagStrength':item.value};});			
 			fisherYates(tagDataJson);
@@ -65,6 +64,37 @@ function tagCloud(request, response){
 		response.end();
 	};
 	dl.topTags(resHandler);
+}
+
+function uaSummaryBrowser(request, response){
+	response.writeHead(200, common.constants.textContent);
+	var resHandler=function(data, err){		
+		if(data && data.value){			
+			var resultArr = [];
+			for(var type in data.value){
+				resultArr.push([type, data.value[type]]);
+			}
+			response.write(JSON.stringify(resultArr));
+		}
+		response.end();
+	};
+	dl.uaSummary('browser', resHandler);
+}
+
+function uaSummaryOS(request, response){
+	response.writeHead(200, common.constants.textContent);
+	var resHandler=function(data, err){		
+		if(data && data.value){			
+			var osType = [], osCount = [];
+			for(var type in data.value){
+				osType.push(type);
+				osCount.push(data.value[type]);
+			}
+			response.write(JSON.stringify({'osArray':osType, 'osCount':osCount}));
+		}
+		response.end();
+	};
+	dl.uaSummary('os', resHandler);
 }
 
 function initDBJobs(){
@@ -77,5 +107,7 @@ exports._start = start;
 exports._generate=generate;
 exports._suggestTags=suggestTags;
 exports._tagCloud=tagCloud;
+exports._uaSummaryBrowser=uaSummaryBrowser;
+exports._uaSummaryOS=uaSummaryOS;
 exports.doRedirect=doRedirect;
 exports.initDBJobs=initDBJobs;

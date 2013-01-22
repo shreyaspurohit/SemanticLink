@@ -18,12 +18,13 @@ MongoClient.connect(dbServer, function(err, dbObj) {
   if(!err) {
     common.winston.info("Connected to MongoDB at " + dbServer);
     db=dbObj;
+    runDBJobOnceOnConnect();
   }else{
     common.winston.error("Failed connecting to MongoDB at " + dbServer + ", with error- " + err);
   }
 });
 
-// Map function
+// Map function for Tag
 var tagMap = function() {			
 		if(this.tags){
 			this.tags.forEach(function (t) {
@@ -31,13 +32,39 @@ var tagMap = function() {
 			});
 		}
 };
-// Reduce function
+// Reduce function for Tag
 var tagReduce = function(k,vals) { 
 	var cnt = 0;
 	vals.forEach(function(v){
 		cnt += v;
 	});
 	return cnt; 
+};
+
+// Map function for User Agent
+var uaMap = function() {			
+		if(this.browser){
+			emit('browser', this.browser);
+		}
+		if(this.browserMajor){
+			emit('browserMajor', this.browserMajor);
+		}
+		if(this.os){
+			emit('os', this.os);
+		}
+};
+
+// Reduce function for User Agent
+var uaReduce = function (key, valueObjects) {
+    var reducedValue = {};
+    for (var idx = 0; idx < valueObjects.length; idx++) {
+        var typeObj = valueObjects[idx];
+        for (var t in typeObj) {
+            if (!reducedValue[t]) reducedValue[t] = 0;
+            reducedValue[t] += typeObj[t];
+        }
+    }
+    return reducedValue;
 };
 
 function doMapReduceOnTags(){
@@ -52,10 +79,27 @@ function doMapReduceOnTags(){
 	});
 }
 
+function doMapReduceOnUserAgentSummary(){
+	common.winston.debug("Running mapreduce on UserAgent at " + new Date().toJSON());
+	db.collection('UserAgent', function(err, collection) {
+      // Peform the map reduce
+      collection.mapReduce(uaMap, uaReduce, {out: 'UserAgentSummary'}, function(err, collection) {
+		if(err){
+			common.winston.error("Failed map/reducing for UserAgent on MongoDB with error- " + err);			
+		}
+	  });
+	});
+}
+
+function runDBJobOnceOnConnect(){
+	//doMapReduceOnUserAgentSummary();
+}
+
 function startDBJobs(){
   var cronTime="0 */2 * * * *";
   common.winston.info("Submitted job for Map reduce for tag statistics to run " + cronTime + " ['second', 'minute', 'hour', 'dayOfMonth', 'month', 'dayOfWeek']");
   jobs.submit(cronTime, doMapReduceOnTags).start();	
+  jobs.submit("0 */30 * * * *", doMapReduceOnUserAgentSummary).start();	
 }
 
 function initDBJobs(){
@@ -93,44 +137,31 @@ function _redirectToRealLink(response, inBetterLink, agent){
 	db.collection('LinkData', function(err, collection) {
 		var findDoc={ 'betterLink': inBetterLink.slice(1)};
 		common.winston.debug("Finding document: " + common.util.inspect(findDoc, true, null));
-		collection.findAndModify(findDoc, {}, {$inc : { 'hitCount': 1 }, $set:{'modifiedDate':new Date()}}, {'fields':{'realLink':1}}, function(err, item) {
+		collection.findAndModify(findDoc, {}, {$inc : { 'hitCount': 1 }, $set:{'modifiedDate':new Date()}}, {'fields':{'realLink':1, '_id':1}}, function(err, item) {
 			if(err){
 				common.winston.error("Failed finding document " + findDoc + " on MongoDB with error- " + err);
 			}else{
 				if(item){
 					functions.sendRedirect(response, item.realLink.indexOf("http")===0 ? item.realLink : "http://"+item.realLink);
+					updateAccessUserAgent(item._id, agent);
 				}else{
 					functions.send404(response, inBetterLink);
 				}
 			}			
 		});
-	});
-	
-	updateAccessUserAgent(inBetterLink, agent);//Can return _id previously and use it instead of another query later, but may lose when document does exist, so good idea?
+	});	
 }
 
-function updateAccessUserAgent(inBetterLink, agent){
-	db.collection('LinkData', function(err, collection) {
-		var findDoc={ 'betterLink': inBetterLink.slice(1)};
-		collection.find(findDoc, {'fields': {'_id':1}}, function(err, items){
-			if(!err){
-				items.nextObject(function(err, item){
-					if(!err && item !== null){						
-						var familyMajor=agent.family+'_v'+agent.major;
-						db.collection('UserAgent', function(err, uacollection) {
-							var ua = {};
-							ua[agent.family] = 1;
-							ua[agent.os.family] = 1;
-							ua[familyMajor] = 1;
-							uacollection.findAndModify({'_id':item._id}, {}, {$inc : ua}, {'upsert':true}, function(err, item){
-								if(err){
-									common.winston.error("Failed updating UserAgent for accessing " + inBetterLink + " on MongoDB with error- " + err);
-								}
-							});
-						});
-					}
-				});
-
+function updateAccessUserAgent(id, agent){
+	var familyMajor=agent.family+'_v'+agent.major;
+	db.collection('UserAgent', function(err, uacollection) {
+		var ua = {};		
+		ua['browser.'+agent.family] = 1;
+		ua['os.'+agent.os.family] = 1;
+		ua['browserMajor.'+familyMajor] = 1;
+		uacollection.findAndModify({'_id':id}, {}, {$inc : ua}, {'upsert':true}, function(err, item){
+			if(err){
+				common.winston.error("Failed updating UserAgent for accessing " + id + " on MongoDB with error- " + err);
 			}
 		});
 	});
@@ -203,9 +234,23 @@ function _topTags(callback){
 	});
 }
 
+function _uaSummary(type, callback){
+	db.collection('UserAgentSummary', function(err, collection) {
+		collection.findOne({'_id':type}, function(err, data){
+			if(err){
+				common.winston.error("Failed retreiving UserAgentSummary of browser on MongoDB with error- " + err);
+				callback(undefined, err);
+			}else{				
+				callback(data, err);
+			}
+		});
+	});
+}
+
 exports.saveNewLink=_saveNewLink;
 exports.redirectToRealLink=_redirectToRealLink;
 exports.suggestTags=_suggestTags;
 exports.initDBJobs=initDBJobs;
 exports.top5Trending=_top5Trending;
 exports.topTags=_topTags;
+exports.uaSummary=_uaSummary;
