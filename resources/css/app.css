@@ -1,23 +1,23 @@
 body{
-	font-family: "Comic Sans MS", cursive
+	min-width:800px;
+	width: auto !important; 
+	width:100px;
+	min-height: 550px; 
+	height:auto !important;
+	height: 600px;
+	font-family: "Comic Sans MS", cursive	
 }
 
 #leftSec{
-	position:fixed;
 	padding-top: 1%;
-	width: 65%;
 	height: 95%;
 	border-right:1px solid grey;
-	text-align: center;
+	text-align: center;	
 }
 
 #rightSec{
-	position:fixed;
-	width: 35%;
 	height: 95%;
 	border: 2px;
-	top: 0;
-	left: 65.8%;
 	text-align: left;
 }
 
@@ -75,7 +75,7 @@ body{
 	-webkit-border-radius: 2px;				
 	border-radius: 2px;				
 	width: 35%;				
-	height: 4%;
+	height: 25px;
 }
 
 .mainTxt:focus{
@@ -109,8 +109,7 @@ body{
 }
 
 #mainLeftSec{
-	position: relative;
-	top: 20%;
+	padding-left: 15%;
 }
 
 .sideLinksBottom, .sideLinksTop{
@@ -126,9 +125,9 @@ body{
 	vertical-align: middle;
 	height: 10%;
 	color: black;
-	line-height: 200%;
-	/*border:1px solid #ACF765;	 #ffd65e*/
+	line-height: 200%;	
 	border:1px solid #E0FFE0;
+	white-space: nowrap;
 }
 .sideLinksTop{
 	height: 19%;
@@ -189,11 +188,9 @@ body{
 	padding:4px 16px;
 	text-shadow:#FE6 0 1px 0
 }
-#visual{
-	position: absolute;
+#visual{	
 	text-align: center;
-	top: 0;
-	width: 100%;				
+	width: 98%;				
 }
 
 #tagCloudUl{
@@ -212,6 +209,11 @@ body{
 	-webkit-border-radius: 5px;				
 	border-radius: 5px;				
 }
+
+.hrefTrending{
+	padding-left: 1%;
+}
+
 #tagCloudUl li{
 	margin:0;
 	padding:0;

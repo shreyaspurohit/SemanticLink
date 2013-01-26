@@ -1,4 +1,4 @@
-/*global require console exports*/
+/*global require console exports process*/
 
 var server = require("./server");
 var router = require("./router");

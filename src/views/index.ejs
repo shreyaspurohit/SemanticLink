@@ -10,9 +10,10 @@
 		<script language="javascript" type="text/javascript" src="/resources/js/jqplot.categoryAxisRenderer.min.js"></script>
 		<script language="javascript" type="text/javascript" src="/resources/js/jqplot.barRenderer.min.js"></script>
 		<script language="javascript" type="text/javascript" src="/resources/js/jqplot.pieRenderer.min.js"></script>
+		<script language="javascript" type="text/javascript" src="/resources/js/jquery.fontVary.js"></script>
 		<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="/resources/js/excanvas.js"></script><![endif]-->
 		
-		<link rel="stylesheet" href="/resources/css/validationEngine.jquery.css" type="text/css"></link>
+		<link rel="stylesheet" href="/resources/css/validationEngine.jquery.css" type="text/css"></link>		
 		<link rel="stylesheet" type="text/css" href="/resources/css/jquery.jqplot.css" />
 		
 		<style type="text/css">
@@ -21,18 +22,32 @@
 			.autocomplete-selected { background: #F0F0F0; }
 			.autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
 		</style>
-		<script type="text/javascript">			
+		<script type="text/javascript">
+			var osPlot, browserPlot;			
 			function getFullPath(suffix){
 				return window.location.protocol + "//" + window.location.host + '/' + suffix;
 			}
 			
-			function calculateLinkSecFont(fullPath){
-				var fontSize = 12;
-			    if(fullPath.length > 40){
-			      fontSize = (window.innerHeight * window.innerWidth) / (2000 * fullPath.length * 0.80);
-			    }
-			    return fontSize;
-			}						
+			function hrefResize(elem){
+				$(elem).each(function(index, elem){												
+					$($(elem).parent()).textFontAdjust(elem, {maxFontPerc: 80, additionalWidthToDecrease: 60});
+				});
+			}
+			
+			function chartResize(plot){
+				if(plot){
+					plot.replot( { resetAxes: true } );				
+				}
+			}
+			
+			function resizeBinds(){				
+				$(window).resize(function(){
+					hrefResize('.hrefTrending');
+					hrefResize('.hrefRT');
+					chartResize(osPlot);
+					chartResize(browserPlot)
+				});
+			}
 			
 			$(document).ready(function(){				
 			   var linkLineHeight = window.innerHeight * window.innerWidth * 0.0000025;			   
@@ -40,9 +55,10 @@
 					$('.sideLinksTop').css({'line-height': 1.5});
 					$('.hrefTrending').each(function(index, elem){
 						var fullPath=getFullPath($(elem).text());
-						$(elem).attr({href: fullPath}).text(fullPath).css('font-size',calculateLinkSecFont(fullPath));
+						$(elem).attr({href: fullPath});
 					});
 			   }
+			   resizeBinds();
 			   doTagCloudPost();
 			   formatTrendingSection();
 			   
@@ -58,11 +74,10 @@
 				    	$("#rightSecBottom .sideLinksBottom").filter(":last").fadeOut(500, function() { $(this).remove(); });
 				    }				    				    
 					$('<div class="sideLinksBottom" style="display: none;"></div>').append(
-						$("<a></a>").attr({href: fullPath}).text(fullPath).css('font-size',calculateLinkSecFont(fullPath))
-					).prependTo("#rightSecBottom").slideDown(1000).css({'line-height': linkLineHeight});
-					
+						$('<a class="hrefRT"></a>').attr({href: fullPath}).text(data.newLink)
+					).prependTo("#rightSecBottom").slideDown(1000, function(){hrefResize('.hrefRT');}).css({'line-height': linkLineHeight});					
 				});
-				
+				hrefResize('.hrefTrending');				
 				plotOsChart();
 				plotBrowserChart();
 			});
@@ -111,7 +126,7 @@
 						plotData['osCount'].forEach(function(element, index, array){
 							array[index] = element/maxVal * 100;
 						});
-						$.jqplot('osChartDiv',  [plotData['osCount']],{
+						osPlot = $.jqplot('osChartDiv',  [plotData['osCount']],{
 					        seriesDefaults:{
 					            renderer:$.jqplot.BarRenderer,
 					            rendererOptions: {varyBarColor: true, fillToZero: true}
@@ -148,14 +163,14 @@
 					if(data){
 						$('#browserChartDiv').show();
 						var plotData = $.parseJSON(data);
-						$.jqplot('browserChartDiv',  [plotData], {
+						browserPlot = $.jqplot('browserChartDiv',  [plotData], {
 							seriesDefaults: {				        
 						        renderer: jQuery.jqplot.PieRenderer,
 						        rendererOptions: {				          
 						          showDataLabels: true
 						        }					        
 					      	},
-					      	legend: { show:true, location: 'e' },
+					      	legend: { show:true, location: 'e', rendererOptions: {numberColumns: 1} },
 					      	title: {
 						        text: 'Browsers',
 						        show: true,
@@ -178,62 +193,57 @@
 			<% } %>
 		</script>
 		<style>
-			#osChartDiv{
-				width: 50%;
+			#osChartDiv{				
 				height:35%;
-				position:absolute;
-				top: 65%;
-				left:0%;
 			}
 			
-			#browserChartDiv{
-				width: 50%;
+			#browserChartDiv{				
 				height:35%;
-				position:absolute;
-				top: 65%;
-				left:50%;
 			}
 		</style>
 	</head>
-	<body>							
-		<div id="leftSec">
-		  <div id="mainLeftSec">
-		   <div id="divForValidation" class="validationEngineContainer">
-			 <div class="mainLabel">Tags </div><div class="subLabel">(Separated by comma)</div>
-			 <textarea rows="4" cols="50" class="mainTxtArea" name="q" autocomplete="off" id="txtAreaTags"></textarea>			
-			
-			 <div class="mainLabel spacerTop">The Real Link</div>
-			 <input type="text" class="mainTxt inputTransition validate[required,custom[url]]" id="txtRealLink" onfocus="$(this).validationEngine('hide');"/>
-			 <div class="spacerTop" id="mainBtnDiv">
-			 	<button class="mainBtn" onclick="alternateLink();" id="btnNewLink">Give me the Better Link!</button>
-			 	<div class="spacerTop" id="hrefBetterLinkDiv" style="display:none;">
-			 		<a href="#" class="mainBtn" id="hrefBetter"></a>
-			 		<button class="mainBtnAlt1" onclick="resetForm();" id="btnOneMore">One More!!</button>
-			 	</div>			 	
-			 </div>
-		   </div>
-		  </div>
-		  <div id="visual">
-			  <div id="tagCloudDiv">
-				  
+	<body>
+		<div class="container_16">							
+			<div id="leftSec" class="grid_12">
+			  <div id="visual" class="grid_12 alpha">
+				  <div id="tagCloudDiv">
+					  
+				  </div>
 			  </div>
-		  </div>
-		  <div id="osChartDiv" style="display:none;"></div>
-		  <div id="browserChartDiv" style="display:none;"></div>
-		</div>
-		
-		<div id="rightSec">
-			<div id="rightSecTopHeader" class="mainLabel" style="text-align: center;">
-				Trending
+			  <div id="mainLeftSec" class="grid_12">
+			   <div id="divForValidation" class="validationEngineContainer">
+				 <div class="mainLabel">Tags </div><div class="subLabel">(Separated by comma)</div>
+				 <textarea rows="4" cols="50" class="mainTxtArea" name="q" autocomplete="off" id="txtAreaTags"></textarea>			
+				
+				 <div class="mainLabel spacerTop">The Real Link</div>
+				 <input type="text" class="mainTxt inputTransition validate[required,custom[url]]" id="txtRealLink" onfocus="$(this).validationEngine('hide');"/>
+				 <div class="spacerTop" id="mainBtnDiv">
+					<button class="mainBtn" onclick="alternateLink();" id="btnNewLink">Give me the Better Link!</button>
+					<div class="spacerTop" id="hrefBetterLinkDiv" style="display:none;">
+						<a href="#" class="mainBtn" id="hrefBetter"></a>
+						<button class="mainBtnAlt1" onclick="resetForm();" id="btnOneMore">One More!!</button>
+					</div>			 	
+				 </div>
+			   </div>
+			  </div>
+			  <div id="spacer" class="grid_12" style="height: 8%;"></div>			  
+			  <div id="osChartDiv" style="display:none;" class="grid_8"></div>
+			  <div id="browserChartDiv" style="display:none;" class="grid_8 omega"></div>
 			</div>
-		    <div id="rightSecTop" style="height: 50%">		    	
-		    	<% if(trending.length>0)trending.map(generateTrendingLink)%>
-		    </div>
-			<div id="rightSecBottomHeader" class="mainLabel" style="text-align: center;">
-				Real Time
-			</div>		    
-		    <div id="rightSecBottom">
-		    </div>
-		</div>
+			
+			<div id="rightSec" class="grid_4">
+				<div id="rightSecTopHeader" class="mainLabel" style="text-align: center;">
+					Trending
+				</div>
+				<div id="rightSecTop" style="height: 50%">		    	
+					<% if(trending.length>0)trending.map(generateTrendingLink)%>
+				</div>
+				<div id="rightSecBottomHeader" class="mainLabel" style="text-align: center;">
+					Real Time
+				</div>		    
+				<div id="rightSecBottom">
+				</div>
+			</div>
+		</div>	
 	</body>
 </html>
