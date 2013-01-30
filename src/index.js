@@ -9,7 +9,7 @@ common.winston.add(common.winston.transports.File, { filename: common.constants.
 server.start(router.route, requestHandlers);
 
 if((process.argv.length > 2 && process.argv[2] !== '-isRunningAsCluster')
-   || process.argv.length <= 2){
+   || process.argv.length <= 2){  
   requestHandlers.initDBJobs();
 }
 

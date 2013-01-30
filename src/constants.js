@@ -9,7 +9,7 @@ module.exports = {
 	ejsLayout: "common/layout.ejs",
 	ejsIndex: "index.ejs",
 	logFile: "../app.log",
-	mongodbUrl: "mongodb://%s:%s/%s?w=1&auto_reconnect=true",
+	mongodbUrl: "mongodb://%s:%s/%s?w=1&auto_reconnect=true&maxPoolSize=%s",
 	ipcBatchJobStart: "BATCH_JOB_START",
 	viewBase: "/views",
 	resourceBase: "../resources",
