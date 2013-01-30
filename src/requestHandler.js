@@ -6,43 +6,56 @@ var layout = require('./layout.js');
 var functions = require('./functions.js');
 var dl = require('./dataLayer.js');
 
-function start(request, response) {
+function start(rr) {
   common.winston.info("Handling /start or /");
   var respHandler=function(err, data){
+   var responseData = {'trending': []};
    if(data && data.length > 0){
-	layout.respondHtml(common.constants.ejsIndex, {'trending': data}, response);  
-   }else{
-	layout.respondHtml(common.constants.ejsIndex, {'trending': []}, response);  
+	responseData = {'trending': data};  
    }
+   console.log(typeof rr)
+   rr.respondLayoutHtml(common.constants.ejsIndex, responseData);  
   };
   dl.top5Trending(respHandler);
 }
 
-function generate(request, response){
+function generate(rr){
   common.winston.info("Handling /generate");
-  functions.handlePost(request, response, function(postData){
-	response.writeHead(200, common.constants.textContent);
+  rr.handlePost(function(postData){	
 	var betterLink = functions.generateBetterLink(postData.link, postData.tags);
-	dl.saveNewLink(postData.link, postData.tags, betterLink);	
-	response.write(betterLink);
-	response.ws.emit('link', {'newLink': betterLink});
-	response.end();
+	dl.saveNewLink(postData.link, postData.tags, betterLink);		
+	rr.broadCastToLinkChannel({'newLink': betterLink});
+	rr.respondText(betterLink);
   });    
 }
 
-function doRedirect(request, response){
-	var agent = common.useragent.lookup(request.headers['user-agent']);
-	dl.redirectToRealLink(response, request.pathName, agent);	
+function doRedirect(rr){
+	var agent = common.useragent.lookup(rr.requestUserAgent);
+	dl.redirectToRealLink(rr.pathName, agent, function(err, redirectLink){
+		if(err || !redirectLink){
+			rr.respond404();
+		}else{
+			common.winston.debug('Redirecting ' + rr.pathName + ' to ' + redirectLink);
+			rr.respondRedirect(redirectLink);
+		}
+	});	
 }
 
-function suggestTags(request, response){
-	functions.handleGet(request, response, function(getData){
+function suggestTags(rr){
+	rr.handleGet(function(getData){
 		common.winston.debug("Query for tag suggest: " + getData.query);
-		dl.suggestTags(response, getData.query);
+		var callbackHandler = function(err,data){
+			if(err){
+				rr.endResponse();
+			}else{
+				rr.respondJson(data);
+			}
+		};
+		dl.suggestTags(getData.query, callbackHandler);
 	});
 }
 
-function tagCloud(request, response){
+function tagCloud(rr){
 	function fisherYates ( arrayData ) {
 	  var i = arrayData.length, j, tempi, tempj;
 	  if ( i === 0 ) return false;
@@ -54,35 +67,34 @@ function tagCloud(request, response){
 	     arrayData[j] = tempi;
 	   }
 	}
-	response.writeHead(200, common.constants.textContent);
 	var resHandler=function(data, err){		
 		if(data && data.length > 0){
 			var tagDataJson=data.map(function(item){return {'tagName':item._id, 'tagStrength':item.value};});			
 			fisherYates(tagDataJson);
-			response.write(JSON.stringify(tagDataJson));
+			rr.respondJson(tagDataJson);
+		}else{
+			rr.endResponse();
 		}
-		response.end();
 	};
 	dl.topTags(resHandler);
 }
 
-function uaSummaryBrowser(request, response){
-	response.writeHead(200, common.constants.textContent);
+function uaSummaryBrowser(rr){
 	var resHandler=function(data, err){		
 		if(data && data.value){			
 			var resultArr = [];
 			for(var type in data.value){
 				resultArr.push([type, data.value[type]]);
 			}
-			response.write(JSON.stringify(resultArr));
-		}
-		response.end();
+			rr.respondJson(resultArr);
+		}else{
+			rr.endResponse();
+		}		
 	};
 	dl.uaSummary('browser', resHandler);
 }
 
-function uaSummaryOS(request, response){
-	response.writeHead(200, common.constants.textContent);
+function uaSummaryOS(rr){
 	var resHandler=function(data, err){		
 		if(data && data.value){			
 			var osType = [], osCount = [];
@@ -90,9 +102,10 @@ function uaSummaryOS(request, response){
 				osType.push(type);
 				osCount.push(data.value[type]);
 			}
-			response.write(JSON.stringify({'osArray':osType, 'osCount':osCount}));
+			rr.respondJson({'osArray':osType, 'osCount':osCount});
+		}else{
+			rr.endResponse();
 		}
-		response.end();
 	};
 	dl.uaSummary('os', resHandler);
 }

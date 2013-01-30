@@ -3,21 +3,20 @@ var common = require('./common');
 var resources = require("./resources");
 var functions = require("./functions");
 
-function route(request, response, handlers) {
-  common.winston.debug("Routing:" + request.pathName + " Header[Accept-Encoding]: " + request.headers['accept-encoding']);  
-  var resourcePath=common.constants.resourcePathPattern + "/";
-  var acceptEncoding = !request.headers['accept-encoding'] ? '' : request.headers['accept-encoding'];
-  if(request.pathName.search(resourcePath) === 0){
-    resources.respondResource(request.pathName, response, acceptEncoding);
-  }else if(request.pathName.search("/favicon.ico") === 0){
-    resources.respondResource(resourcePath+"favicon.ico", response, acceptEncoding);
+function route(rrWrapper, handlers) {
+  common.winston.debug("Routing:" + rrWrapper.pathName + " Header[Accept-Encoding]: " + rrWrapper.requestEncodings);  
+  var resourcePath=common.constants.resourcePathPattern + "/";  
+  if(rrWrapper.pathName.search(resourcePath) === 0){
+    resources.respondResource(rrWrapper.pathName, rrWrapper.response, rrWrapper.requestEncodings);
+  }else if(rrWrapper.pathName.search("/favicon.ico") === 0){
+    resources.respondResource(resourcePath+"favicon.ico", rrWrapper.response, rrWrapper.requestEncodings);
   }
   else{
-     var hf = request.pathName.replace(/\//gi, "_");
+     var hf = rrWrapper.pathName.replace(/\//gi, "_");
 	  if(handlers[hf] !== undefined){
-	  	handlers[hf](request, response);
+	  	handlers[hf](rrWrapper);
 	  }else{
-	  	handlers['doRedirect'](request, response);
+	  	handlers['doRedirect'](rrWrapper);
 	  }	    
   }
 }

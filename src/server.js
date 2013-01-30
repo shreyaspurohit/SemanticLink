@@ -4,6 +4,7 @@ var http = require("http");
 var url = require("url");
 var common = require('./common.js');
 var sio = require('socket.io');
+var RRWrapper = require('./rrWrapper.js');
 var io = undefined;
 
 function start(route, handlers) {
@@ -11,7 +12,7 @@ function start(route, handlers) {
     attachSocketIO(response);
     var pathname = url.parse(request.url).pathname;
     request.pathName = pathname;
-    route(request, response, handlers);
+    route(new RRWrapper(request, response), handlers);
   }
   
   var server = http.createServer(onRequest)

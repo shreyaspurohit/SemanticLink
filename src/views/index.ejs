@@ -124,7 +124,7 @@
 				$.post("/uaSummaryOS", function(data){
 					if(data){
 						$('#osChartDiv').show();
-						var plotData = $.parseJSON(data);
+						var plotData = data;
 						var maxVal = Math.max.apply(null, plotData['osCount'])
 						plotData['osCount'].forEach(function(element, index, array){
 							array[index] = element/maxVal * 100;
@@ -165,8 +165,7 @@
 				$.post("/uaSummaryBrowser", function(data){					
 					if(data){
 						$('#browserChartDiv').show();
-						var plotData = $.parseJSON(data);
-						browserPlot = $.jqplot('browserChartDiv',  [plotData], {
+						browserPlot = $.jqplot('browserChartDiv',  [data], {
 							seriesDefaults: {				        
 						        renderer: jQuery.jqplot.PieRenderer,
 						        rendererOptions: {				          

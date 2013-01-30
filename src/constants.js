@@ -2,6 +2,7 @@ module.exports = {
 	msg404: "Oops you sneaky lil *******. Now you know this link does not exist.",
 	htmlContent: {"Content-Type":"text/html"},
 	textContent: {"Content-Type":"text/plain"},
+	jsonContent: {"Content-Type":"application/json"},
 	ejs404: "common/404.ejs",
 	headMarker: "{{headContents}}",
 	bodyMarker: "{{bodyContents}}",

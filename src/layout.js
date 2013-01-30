@@ -22,10 +22,8 @@ function display(viewPath, data){
 	return mergeLayout(view.getViewFunc(viewPath)(data));
 }
 
-function respondHtml(viewPath, data, response){
-  response.writeHead(200, common.constants.htmlContent);
-  response.write(display(viewPath, data));
-  response.end();
+function respondHtml(viewPath, data, responder){  
+  responder(display(viewPath, data)); 
 }
 
 exports.display = display;
