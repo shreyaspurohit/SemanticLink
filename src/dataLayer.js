@@ -51,17 +51,37 @@ var uaMap = function() {
 		}
 		if(this.os){
 			emit('os', this.os);
+			emit('osCategory', this.os);
 		}
 };
 
 // Reduce function for User Agent
 var uaReduce = function (key, valueObjects) {
     var reducedValue = {};
+    var mapOfOS = {
+		'Linux':'Linux',
+		'Ubuntu':'Linux',
+		'Linux Mint':'Linux',
+		'Windows':'Windows',
+		'Windows 7':'Windows'
+	};
+	function handleAllIndividual(t, value){
+		if (!reducedValue[t]) reducedValue[t] = 0;
+        reducedValue[t] += value;
+	}
+	function handleOsCategory(t, value){
+		if(!mapOfOS.hasOwnProperty(t))mapOfOS[t]=t;
+		if (!reducedValue[mapOfOS[t]]) reducedValue[mapOfOS[t]] = 0;
+        reducedValue[mapOfOS[t]] += value;
+	}
     for (var idx = 0; idx < valueObjects.length; idx++) {
         var typeObj = valueObjects[idx];
         for (var t in typeObj) {
-            if (!reducedValue[t]) reducedValue[t] = 0;
-            reducedValue[t] += typeObj[t];
+			if(key === 'osCategory'){
+				handleOsCategory(t, typeObj[t]);
+			}else{
+				handleAllIndividual(t, typeObj[t]);
+			}
         }
     }
     return reducedValue;
