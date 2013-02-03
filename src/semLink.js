@@ -9,7 +9,7 @@ var http = require('http');
 var https = require('https');
 //For now 'title' of webpage provides the best details of a website. Need to add more intellect
 var titleRegEx = /[\s\S]*<title>(.*)<\/title>[\s\S]*/gm ;
-var ignore = ['a', 'an', 'the', 'how', 'to', 'using', 'in', 'this', 'that', 'for',
+var ignore = ['a', 'an', 'the', 'and', 'how', 'to', 'using', 'in', 'this', 'that', 'those', 'these', 'for',
 			 '&amp;', ''];
 			 
 function extract(data, callback){

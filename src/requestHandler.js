@@ -19,14 +19,19 @@ function start(rr) {
 }
 
 function generate(rr){
-  common.winston.info("Handling /generate");
+  common.winston.info("Handling /generate");  
   rr.handlePost(function(postData){	
-	var betterLinkHandler = function(betterLink, completeTags){
-		dl.saveNewLink(postData.link, postData.tags, betterLink);		
-		rr.broadCastToLinkChannel({'newLink': betterLink});
-		rr.respondText(betterLink);
-	}
-	functions.generateBetterLink(postData.link, postData.tags, postData.useSuggest, betterLinkHandler);	
+	  common.winston.info('Generate POST data: ' + common.util.inspect(postData));
+	  if(functions.validateUrl(postData.link)){
+	        var betterLinkHandler = function(betterLink, completeTags){
+			dl.saveNewLink(postData.link, postData.tags, betterLink);		
+			rr.broadCastToLinkChannel({'newLink': betterLink});
+			rr.respondText(betterLink);
+		}
+		functions.generateBetterLink(postData.link, postData.tags, postData.useSuggest, betterLinkHandler);	
+	  }else{
+		  rr.respondText('Invalid input URL format');
+	  }	
   });    
 }
 
