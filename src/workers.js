@@ -1,11 +1,12 @@
 /*global require console exports process emit*/
 var backgrounder = require("backgrounder");
 var common=require('./common');
-var aliveWorker = undefined;
+var aliveWorker = {};
 
-function submitRunOnce(workerPath, msg, callback){
+function submitRunOnce(workerPath, config, msg, callback){
  var worker = backgrounder.spawn(workerPath, {
-	"children-count" : 1
+	"children-count" : 1,
+	"config" : config
  });
  worker.send(msg, function(){
   if(undefined !== callback){
@@ -21,13 +22,14 @@ function submitRunOnce(workerPath, msg, callback){
 
 }
 
-function submitRunAlways(workerPath, msg, callback){
- if(undefined === aliveWorker){
-   aliveWorker = backgrounder.spawn(workerPath, {
-  	"children-count" : 1
+function submitRunAlways(workerPath, config, msg, callback){
+ if(undefined === aliveWorker[workerPath]){
+   aliveWorker[workerPath] = backgrounder.spawn(workerPath, {
+  	"children-count" : 1,
+  	"config" : config
    });
  }
- aliveWorker.send(msg, function(){
+ aliveWorker[workerPath].send(msg, function(){
   if(undefined !== callback){
    callback(arguments)
   }
@@ -35,8 +37,8 @@ function submitRunAlways(workerPath, msg, callback){
 }
 
 function terminateAliveWorker(){
- if(undefined !== aliveWorker){
-  aliveWorker.terminate();
+ for(var w in aliveWorker){
+	aliveWorker[w].terminate(); 
  }
 }
 

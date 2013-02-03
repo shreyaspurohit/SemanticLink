@@ -1,10 +1,10 @@
 /*global require console exports process emit*/
-
 var common=require("./common");
 var jobs=require("./jobs");
 
 // Retrieve
-var withMongoDB = require('./connection').withMongoDB
+var connection = require('./connection');
+var withMongoDB = connection.withMongoDB
 
 // Map function for Tag
 var tagMap = function() {			
@@ -117,4 +117,12 @@ process.on('message', function(msg, callback) {
 	    startDBJobs();
         }
       }
+});
+
+process.on('config', function(config, callback) {
+    common.winston.info('Worker: received configuration ', config);
+    common.winston.info('Configuring DB connection using host: ' + config.config.dbConfig.host + ' port: ' + config.config.dbConfig.port + ' dbName: ' + 
+			config.config.dbConfig.dbName + ' maxPoolSize: ' + config.config.dbConfig.maxPoolSize);
+	connection.setConnectionParameters(config.config.dbConfig);
+    if(callback)callback();
 });

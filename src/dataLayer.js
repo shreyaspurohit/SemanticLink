@@ -6,7 +6,7 @@ var workers = require("./workers");
 var withMongoDB = require('./connection').withMongoDB
 
 function initDBJobs(){
-  workers.submitRunAlways(__dirname + "/dbWorkers.js", {'fName':'startDBJobs'});
+  workers.submitRunAlways(__dirname + "/dbWorkers.js", {'dbConfig':require('./connection').getConnectionParameters()}, {'fName':'startDBJobs'});
 }
 
 function _saveNewLink(realLink, tags, betterLink){

@@ -101,9 +101,11 @@
 			function doAjaxPost(){
 				var linkTags =  $('#txtAreaTags').val();
 				var realLink = $('#txtRealLink').val();
+				var specialGenerate = $('#chkBxUseSuggest').is(':checked');
 				$('#btnNewLink').text('Generating Something Better..');
-				$.post("/generate", { tags: linkTags, link : realLink }, function(data){
+				$.post("/generate", { tags: linkTags, link : realLink, useSuggest: specialGenerate}, function(data){
 					$('#btnNewLink').toggle();
+					$('.spanUseSuggest').toggle();
 					var fullPath=window.location.protocol + "//" + window.location.host + '/' + data;
 					$('#hrefBetter').text(fullPath).attr({href: fullPath});					
 					$('#hrefBetterLinkDiv').toggle();
@@ -113,6 +115,7 @@
 			}
 			
 			function resetForm(){
+				$('.spanUseSuggest').toggle();
 				$('#hrefBetterLinkDiv').toggle();
 				$('#btnNewLink').toggle();
 				$('#hrefBetter').text('').attr({href: '#'});
@@ -195,13 +198,7 @@
 			<% } %>
 		</script>
 		<style>
-			#osChartDiv{				
-				height:35%;
-			}
 			
-			#browserChartDiv{				
-				height:35%;
-			}
 		</style>
 	</head>
 	<body>
@@ -221,6 +218,11 @@
 				 <input type="text" class="mainTxt inputTransition validate[required,custom[url]]" id="txtRealLink" onfocus="$(this).validationEngine('hide');"/>
 				 <div class="spacerTop" id="mainBtnDiv">
 					<button class="mainBtn" onclick="alternateLink();" id="btnNewLink">Give me the Better Link!</button>
+					<span class="spanUseSuggest">						
+						<input type="checkbox" id="chkBxUseSuggest" class="regular-checkbox mainLabel"/>
+						<label for="chkBxUseSuggest"></label>
+						<label class="subLabel">Do something much better?</label>
+					</span>
 					<div class="spacerTop" id="hrefBetterLinkDiv" style="display:none;">
 						<a href="#" class="mainBtn" id="hrefBetter"></a>
 						<button class="mainBtnAlt1" onclick="resetForm();" id="btnOneMore">One More!!</button>

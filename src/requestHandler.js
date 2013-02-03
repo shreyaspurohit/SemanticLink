@@ -13,7 +13,6 @@ function start(rr) {
    if(data && data.length > 0){
 	responseData = {'trending': data};  
    }
-   console.log(typeof rr)
    rr.respondLayoutHtml(common.constants.ejsIndex, responseData);  
   };
   dl.top5Trending(respHandler);
@@ -22,10 +21,12 @@ function start(rr) {
 function generate(rr){
   common.winston.info("Handling /generate");
   rr.handlePost(function(postData){	
-	var betterLink = functions.generateBetterLink(postData.link, postData.tags);
-	dl.saveNewLink(postData.link, postData.tags, betterLink);		
-	rr.broadCastToLinkChannel({'newLink': betterLink});
-	rr.respondText(betterLink);
+	var betterLinkHandler = function(betterLink, completeTags){
+		dl.saveNewLink(postData.link, postData.tags, betterLink);		
+		rr.broadCastToLinkChannel({'newLink': betterLink});
+		rr.respondText(betterLink);
+	}
+	functions.generateBetterLink(postData.link, postData.tags, postData.useSuggest, betterLinkHandler);	
   });    
 }
 

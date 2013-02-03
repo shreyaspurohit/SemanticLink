@@ -36,7 +36,7 @@ function loadAllResources(dirPath){
 			cachedGzipResources[filePath] = rs;
 		  }
 	  });
-	  common.winston.info("Found file " + filePath + " which was cached at key " + filePath);
+	  common.winston.info("Found file " + filePath + " which was cached at key " + filePath);	  
     };
     
     var filter = function(){return true;};

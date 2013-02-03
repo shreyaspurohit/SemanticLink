@@ -13,5 +13,6 @@ module.exports = {
 	ipcBatchJobStart: "BATCH_JOB_START",
 	viewBase: "/views",
 	resourceBase: "../resources",
-	resourcePathPattern: "/resources"
+	resourcePathPattern: "/resources",
+	numberOfTagsInNewLink: 5
 };
