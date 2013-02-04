@@ -6,7 +6,6 @@
     "mongodb": "",
     "cron": "",
     "winston": "",
-    "threads-a-gogo": "",
     "backgrounder": "",
     "socket.io": "",
     "useragent": "~2.0.0",
