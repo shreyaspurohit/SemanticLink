@@ -7,9 +7,9 @@ var domain = require('domain');
 function route(rrWrapper, handlers) {  
   var resourcePath=common.constants.resourcePathPattern + "/";  
   if(rrWrapper.pathName.search(resourcePath) === 0){
-    resources.respondResource(rrWrapper.pathName, rrWrapper.response, rrWrapper.requestEncodings);
+    resources.respondResource(rrWrapper.pathName, rrWrapper.response, rrWrapper.requestEncodings, rrWrapper.modifiedSince);
   }else if(rrWrapper.pathName.search("/favicon.ico") === 0){
-    resources.respondResource(resourcePath+"favicon.ico", rrWrapper.response, rrWrapper.requestEncodings);
+    resources.respondResource(resourcePath+"favicon.ico", rrWrapper.response, rrWrapper.requestEncodings, rrWrapper.modifiedSince);
   }
   else{
 	  common.winston.debug("Routing:" + rrWrapper.pathName + " Header[Accept-Encoding]: " + rrWrapper.requestEncodings);  

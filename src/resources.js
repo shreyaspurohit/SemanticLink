@@ -5,18 +5,35 @@ var functions = require("./functions");
 var cachedResources = {},
 	cachedDeflateResources = {},
 	cachedGzipResources = {};
- 
-function respondResource(rPath, response, acceptEncoding){  
+var moduleLoadTime = Date.now();
+
+function withResponseCacheControl(response, modifiedSince, executeifNotNoneMatch){
+	response.setHeader('Last-Modified', moduleLoadTime); //As resources are cached always
+	if(modifiedSince === JSON.stringify(moduleLoadTime)){
+		response.statusCode = 304;		
+	}else{
+		executeifNotNoneMatch(response);
+	}
+	
+} 
+
+function respondResource(rPath, response, acceptEncoding, modifiedSince){  
   var key=rPath.replace(common.constants.resourcePathPattern, common.constants.resourceBase);
-  if (acceptEncoding.match(/\bgzip\b/) && cachedGzipResources[key]) {
-    response.writeHead(200, { 'content-encoding': 'gzip' });
-    response.write(cachedGzipResources[key]);
+  if (acceptEncoding.match(/\bgzip\b/) && cachedGzipResources[key]) {	 
+	withResponseCacheControl(response, modifiedSince, function(response){
+		response.writeHead(200, { 'content-encoding': 'gzip' });
+		response.write(cachedGzipResources[key]);
+	});    
   }else if (acceptEncoding.match(/\bdeflate\b/) && cachedDeflateResources[key]) {
-    response.writeHead(200, { 'content-encoding': 'deflate' });    
-    response.write(cachedDeflateResources[key]);
+	withResponseCacheControl(response, modifiedSince, function(response){
+		response.writeHead(200, { 'content-encoding': 'deflate' });    
+		response.write(cachedDeflateResources[key]);
+	});
   }else if(cachedResources[key]){
-    response.writeHead(200, {});
-    response.write(cachedResources[key]);
+	withResponseCacheControl(response, modifiedSince, function(response){
+		response.writeHead(200, {});
+		response.write(cachedResources[key]);
+	});
   }else{
     response.writeHead(400);
   }

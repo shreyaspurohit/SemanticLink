@@ -17,6 +17,7 @@ function RRWrapper(request, response){
 	this.pathName = request.pathName;
 	this.requestUserAgent = request.headers['user-agent'];
 	this.requestEncodings = !request.headers['accept-encoding'] ? '' : request.headers['accept-encoding'];	
+	this.modifiedSince = request.headers['if-modified-since'];
 }
 
 RRWrapper.prototype = {

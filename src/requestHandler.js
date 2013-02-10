@@ -18,6 +18,21 @@ function start(rr) {
   dl.top5Trending(respHandler);
 }
 
+function about(rr){
+  common.winston.info("Handling /about");
+  rr.respondLayoutHtml(common.constants.ejsAbout);
+}
+
+function api(rr){
+  common.winston.info("Handling /api");
+  rr.respondLayoutHtml(common.constants.ejsApi);
+}
+
+function privacy(rr){
+  common.winston.info("Handling /privacy");
+  rr.respondLayoutHtml(common.constants.ejsPrivacy);
+}
+
 function generate(rr){
   common.winston.info("Handling /generate");  
   rr.handlePost(function(postData){	
@@ -123,6 +138,9 @@ function initDBJobs(){
 exports._=start;
 exports._index=start;
 exports._start = start;
+exports._about = about;
+exports._api = api;
+exports._privacy = privacy;
 exports._generate=generate;
 exports._suggestTags=suggestTags;
 exports._tagCloud=tagCloud;
