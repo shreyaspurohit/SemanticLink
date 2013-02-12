@@ -144,6 +144,7 @@ exports._privacy = privacy;
 exports._generate=generate;
 exports._suggestTags=suggestTags;
 exports._tagCloud=tagCloud;
+exports._topTags=tagCloud;
 exports._uaSummaryBrowser=uaSummaryBrowser;
 exports._uaSummaryOS=uaSummaryOS;
 exports.doRedirect=doRedirect;

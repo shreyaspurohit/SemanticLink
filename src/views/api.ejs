@@ -8,7 +8,50 @@
 			<div id="aboutContents" class="grid_15 staticContents">
 				<h2 class="mainLabel">API</h2>
 				<hr class="headerSeparater"/>
-				<span>
+				<span style="text-align: left;">
+					<p>
+						<ol>
+							<li>
+								POST
+								<ul>
+									<li>
+										/generate <b>Generate a new semantic link based on given input</b>
+										<br />
+										<b>Parameter:</b> JSON String { tags: linkTags, link : realLink, useSuggest: true}
+										<br />
+										<b>Parameter Description:</b>	Tags are the comma separated list of tags (can be empty), link that represent the real http link with 'http://' or 'https://' to be shortened, and
+										useSuggest which when true will try to return link based on page contents intellectually. 
+										<br />
+										<b>Return:</b> Text String where the string is 'Invalid input URL format' if invalid URL is passed and the semantic version of the
+										link if the operation is successful.
+									</li>
+								</ul>
+							</li>
+							<li>
+								GET
+								<ul>
+									<li>
+										/[semanticLink] <b>Redirect to the real website</b>
+										<br />
+										<b>Parameter:</b> None
+										<br />
+										<b>Parameter Description:</b>	None
+										<br />
+										<b>Return:</b> HTTP 302 redirect to the real web page
+									</li>
+									<li>
+										/topTags <b>Top 40 commonly used tags</b>
+										<br />
+										<b>Parameter:</b> None
+										<br />
+										<b>Parameter Description:</b>	None
+										<br />
+										<b>Return:</b> JSON String [{'tagName': tagName, 'tagStrength': strength},..]
+									</li>
+								</ul>
+							</li>
+						</ol>
+					</p>
 				</span>
 			</div>
 		</div>
