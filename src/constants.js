@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = {	
 	msg404: "Oops you sneaky lil *******. Now you know this link does not exist.",
 	htmlContent: {"Content-Type":"text/html"},
 	textContent: {"Content-Type":"text/plain"},
@@ -11,11 +11,11 @@ module.exports = {
 	ejsAbout: "about.ejs",
 	ejsApi: "api.ejs",
 	ejsPrivacy: "privacy.ejs",
-	logFile: "../app.log",
+	logFile: "/log/app.log",
 	mongodbUrl: "mongodb://%s:%s/%s?w=1&auto_reconnect=true&maxPoolSize=%s",
 	ipcBatchJobStart: "BATCH_JOB_START",
-	viewBase: "/views",
-	resourceBase: "../resources",
+	viewBase: "/src/views",
+	resourceBase: "/resources",
 	resourcePathPattern: "/resources",
 	numberOfTagsInNewLink: 5
 };

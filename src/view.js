@@ -9,7 +9,7 @@ function endsWith(str, suffix) {
 }
 
 function getViewFunc(viewPath){
-	var filePath = common.constants.viewBase + "/" + viewPath;
+	var filePath = functions.realDir(common.constants.viewBase) + "/" + viewPath;
 	var funcName = filePath.replace(/\//g,"_");
 	return funcView[funcName];
 }
@@ -17,7 +17,7 @@ function getViewFunc(viewPath){
 function loadAllViews(dirPath){
 
     var handler = function(filePath, data){
-      var funcName = filePath.substring(1, filePath.length).replace(/\//g,"_");
+      var funcName = filePath.replace(/\//g,"_");
       funcView[funcName] = common.ejs.compile(data,{filename: filePath});
 	  common.winston.info("Found file " + filePath + " which was compiled to function " + funcName);
     };
@@ -27,7 +27,7 @@ function loadAllViews(dirPath){
 	functions.processDir(dirPath, handler, filter);
 }
 
-loadAllViews("." + common.constants.viewBase);
+loadAllViews(functions.realDir(common.constants.viewBase));
 
 exports.getViewFunc= getViewFunc;
 

@@ -64,6 +64,12 @@ function _validateUrl(url){
 	return false;
 }
 
+var processWorkingDir=process.cwd();
+function _withProcessWorkingDir(path){
+	return processWorkingDir + path;
+}
+
 exports.processDir=_processDir;
 exports.generateBetterLink=_generateBetterLink;
 exports.validateUrl=_validateUrl;
+exports.realDir=_withProcessWorkingDir;

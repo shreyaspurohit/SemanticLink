@@ -18,7 +18,7 @@ function withResponseCacheControl(response, modifiedSince, executeifNotNoneMatch
 } 
 
 function respondResource(rPath, response, acceptEncoding, modifiedSince){  
-  var key=rPath.replace(common.constants.resourcePathPattern, common.constants.resourceBase);
+  var key=rPath.replace(common.constants.resourcePathPattern, functions.realDir(common.constants.resourceBase));
   if (acceptEncoding.match(/\bgzip\b/) && cachedGzipResources[key]) {	 
 	withResponseCacheControl(response, modifiedSince, function(response){
 		response.writeHead(200, { 'content-encoding': 'gzip' });
@@ -61,7 +61,7 @@ function loadAllResources(dirPath){
 	functions.processDir(dirPath, handler, filter);
 }
 
-loadAllResources(common.constants.resourceBase);
+loadAllResources(functions.realDir(common.constants.resourceBase));
 
 exports.respondResource= respondResource;
 
