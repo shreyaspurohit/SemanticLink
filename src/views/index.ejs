@@ -152,10 +152,13 @@
 				$.post("/uaSummaryOS", function(data){
 					if(data){
 						$('#osChartDiv').show();
-						var plotData = data;
-						var maxVal = Math.max.apply(null, plotData['osCount'])
+						var plotData = data;						
+						var sumVal = 0;
 						plotData['osCount'].forEach(function(element, index, array){
-							array[index] = element/maxVal * 100;
+							sumVal += element;
+						});
+						plotData['osCount'].forEach(function(element, index, array){
+							array[index] = element/sumVal * 100;
 						});
 						osPlot = $.jqplot('osChartDiv',  [plotData['osCount']],{
 					        seriesDefaults:{
