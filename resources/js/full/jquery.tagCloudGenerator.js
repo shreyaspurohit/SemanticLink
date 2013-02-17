@@ -20,22 +20,24 @@
   };
   
   $.fn.generateTagCloud = function(data, options) {
-	  if(typeof data === 'string'){
-		  data=$.parseJSON(data);
+	  if(data){
+		  if(typeof data === 'string'){
+			  data=$.parseJSON(data);
+		  }
+		  var config = $.extend({
+					numberOfLevel: 5,
+					perLevelFontDiffPerc: 20,
+					baseFontSizePerc:100
+				}, options);
+		  this.append('<ul id="tagCloudUl"></ul>');
+		  var stepsPerLevel = methods.stepsPerLevel(config);
+		  methods.normalize(data).forEach(function(item){		
+			var fontSizePer=methods.calculatefontSizePerc(item, stepsPerLevel, config);
+			if(undefined !== item.tagUrl)
+				$('#tagCloudUl').append($('<li style="font-size:'+ fontSizePer +'%;"><a href="'+item.tagUrl+'">'+ item.tagName+'</a></li>'));
+			else
+				$('#tagCloudUl').append($('<li style="font-size:'+ fontSizePer +'%;"> <label>' + item.tagName+' </label></li>'));
+		  });
 	  }
-      var config = $.extend({
-				numberOfLevel: 5,
-				perLevelFontDiffPerc: 20,
-				baseFontSizePerc:100
-			}, options);
-	  this.append('<ul id="tagCloudUl"></ul>');
-	  var stepsPerLevel = methods.stepsPerLevel(config);
-	  methods.normalize(data).forEach(function(item){		
-		var fontSizePer=methods.calculatefontSizePerc(item, stepsPerLevel, config);
-		if(undefined !== item.tagUrl)
-			$('#tagCloudUl').append($('<li style="font-size:'+ fontSizePer +'%;"><a href="'+item.tagUrl+'">'+ item.tagName+'</a></li>'));
-		else
-			$('#tagCloudUl').append($('<li style="font-size:'+ fontSizePer +'%;"> <label>' + item.tagName+' </label></li>'));
-	  });
   };
 })( jQuery );
