@@ -18,7 +18,7 @@ dist/
 # Logs and databases #
 ######################
 *.log
-log/
+*.pid
 
 # OS generated files #
 ######################
