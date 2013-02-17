@@ -13,8 +13,8 @@ mkdir dist
 echo "Copying 'src', 'scripts' and 'log' .."
 cp -r ./{src,log,scripts} ./$DIST_DIR
 
-echo "Copying 'package.json' and 'run.js' .."
-cp ./package.json ./run.js ./$DIST_DIR
+echo "Copying 'package.json', 'run.js' and 'run.sh' .."
+cp ./package.json ./run.js ./run.sh ./$DIST_DIR
 
 echo "Copying 'resources' .."
 mkdir -p ./dist/resources/js/min
