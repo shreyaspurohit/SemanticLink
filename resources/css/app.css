@@ -298,7 +298,7 @@ body{
 	font-size: 70%;
 	height: 0.5%;
 	background: #FFFFFF;
-	position: absolute;
+	position: fixed;
 	bottom: 1.9%;	
 }
 .footerDiv a:link, .footerDiv a:visited, .footerDiv a:hover{
@@ -333,7 +333,9 @@ body{
 	left: 0;
 	top: 5%;
 	width: 2%;
-	height: 15%;
+	height: 16%;
+	min-height: 110px;
+	min-width: 25px;
 	font-size: 95%;
 	
 	background:#cccccc;
